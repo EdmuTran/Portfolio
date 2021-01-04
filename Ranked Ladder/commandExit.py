@@ -1,11 +1,16 @@
-import PlayerManager
+import databaseManager
 
 def processExitMessage(playerID):
+    playerID = int(playerID)
     
     mentionPlayerCode = f'<@{playerID}>'
     
-    playerDequeued = PlayerManager.dequeuePlayer(playerID)
-    if playerDequeued:
-        return f"{mentionPlayerCode} You've been dequeued. If you are still matched, ask your opponent to !exit."
+    activeMatches = databaseManager.getActiveMatches(playerID)
+    
+    if len(activeMatches) > 0:
+        for match in activeMatches:
+            if match.firstQueued == playerID or match.secondQueued == playerID:
+                match.cancelMatch()
+        return f"{mentionPlayerCode} You've been dequeued along with any opponents."
     else:
-        return f"{mentionPlayerCode} You don't need to !exit since you aren't queued."
+        return f"{mentionPlayerCode} you aren't queued. No need to !exit"
