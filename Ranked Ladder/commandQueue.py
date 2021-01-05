@@ -15,8 +15,8 @@ def processQueueMessage(playerID, playerName, parameters):
         print(traceback.format_exc())
         queueTimeout = 30
     
-    response = queuePlayer(playerID, playerName, queueTimeout)
-    return response
+    response, lobbyCreated = queuePlayer(playerID, playerName, queueTimeout)
+    return response, lobbyCreated
 
 def queuePlayer(playerID, playerName, queueTimeout=30):
     playerID = int(playerID)
@@ -25,15 +25,18 @@ def queuePlayer(playerID, playerName, queueTimeout=30):
     mentionPlayerCode = f'<@{playerID}>'
     
     if inActiveMatch(playerID):
-        return f"{mentionPlayerCode} You're already queued up. '!exit' to manual dequeue."
+        lobbyCreated = False
+        return f"{mentionPlayerCode} You're already queued up. '!exit' to manual dequeue.", lobbyCreated
     
     openMatches = databaseManager.getOpenMatches()
     lastOpponentID = getLastOpponent(playerID)
     for match in openMatches:
         if match.firstQueued != lastOpponentID:
-            return matchPlayer(match, playerID)
+            lobbyCreated = False
+            return matchPlayer(match, playerID), lobbyCreated
     
-    return newOpenMatch(playerID, queueTimeout)
+    lobbyCreated = True
+    return newOpenMatch(playerID, queueTimeout), lobbyCreated
 
 def newOpenMatch(playerID, queueTimeout):
     mentionPlayerCode = f'<@{playerID}>'

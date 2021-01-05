@@ -31,6 +31,8 @@ guild = None
 
 clientIsReady = False
 
+botID = 778772923984379904
+
 @client.event
 async def on_ready():
     global guild
@@ -68,8 +70,10 @@ async def on_message(msg):
                 await replyInSameChat(parsedMsg, response)
                 
             elif parsedMessageMatchesCommand('find-matches','queue',parsedMsg):
-                response = commandQueue.processQueueMessage(parsedMsg.playerID, parsedMsg.name, parsedMsg.parameters)
+                response, lobbyCreated = commandQueue.processQueueMessage(parsedMsg.playerID, parsedMsg.name, parsedMsg.parameters)
                 await replyInSameChat(parsedMsg, response)
+                if lobbyCreated:
+                    await messageChannel('game-notifications', 'A player is waiting for a game.') 
                 
             elif parsedMessageMatchesCommand('find-matches','exit',parsedMsg):
                 response = commandExit.processExitMessage(parsedMsg.playerID)
@@ -206,6 +210,9 @@ async def tick():
             await setQueuedRoles()
             await setTournamentEligibleRoles()
             await queueTimeoutTick()
+            await notifyPlayersOfOpenGame()
+    except KeyboardInterrupt:
+        print('Loop Closed')
     except:
         print(traceback.format_exc())
 
@@ -251,6 +258,25 @@ async def setRoles(playerIds, roleName):
                         await member.remove_roles(queuedRole)
     except Exception as e:
         print(e)
+
+# =============================== Game notifications ===============================
+
+async def notifyPlayersOfOpenGame():
+    try:
+        channel = getChannel('game-notifications')
+        openMatches = databaseManager.getOpenMatches()
+        
+        toSkip = len(openMatches)
+        msgs = await channel.history(limit=toSkip+2).flatten()
+        
+        for msg in msgs:
+            if msg.author.id == botID:
+                if toSkip <= 0:
+                    await msg.edit(content='The match has been closed')
+                toSkip -= 1
+    except:
+        #print(traceback.format_exc())
+        print('Player Notification of Open Game Exception')
     
 tick.start()
 client.run(TOKEN)
