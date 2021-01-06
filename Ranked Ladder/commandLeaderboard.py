@@ -6,6 +6,9 @@ class playerData:
     def __init__(self):
         self.elo = 1000
         self.ladderPoints = 0
+        self.games = 0
+        self.wins = 0
+        self.firstQueued = 0
 
 firstQueuedPts = .5
 secondQueuedPts = .25
@@ -14,17 +17,18 @@ winnerPts = 1
 def processScoreMessage(playerID, parameters, rowsToShow=15):
     
     eloOrdered = len(parameters) > 0 and parameters[0] == 'elo'
-    response = getLeaderboard(eloOrdered)
+    response = getLeaderboardAndPlayerData(eloOrdered, playerID)
     
     return response
 
-
+previousNumberOfMatches = 0
 def calculateLeaderboard():
     global players
-    players = {}
     matches = databaseManager.getFinishedMatches()
-    for match in matches:
-        processMatch(match)
+    if previousNumberOfMatches != len(matches):
+        players = {}
+        for match in matches:
+            processMatch(match)
     
 def processMatch(match):
     if match.firstQueued not in players:
@@ -33,6 +37,11 @@ def processMatch(match):
         players[match.secondQueued] = playerData()
     
     setElo(match)
+    
+    players[match.firstQueued].games += 1
+    players[match.firstQueued].firstQueued += 1
+    players[match.secondQueued].games += 1
+    players[match.winnerID].wins += 1
     
     players[match.firstQueued].ladderPoints += firstQueuedPts
     players[match.secondQueued].ladderPoints += secondQueuedPts
@@ -45,7 +54,8 @@ def setElo(match):
     winner.elo = winnerElo
     loser.elo = loserElo
 
-def getLeaderboard(orderByElo=False):
+def getLeaderboardAndPlayerData(orderByElo=False, playerID=0):
+    playerID = int(playerID)
     leaderboard = getLeaderboardData()
     
     if orderByElo:
@@ -55,12 +65,42 @@ def getLeaderboard(orderByElo=False):
     
     leaderboardString = f"LP = League Points\n+{winnerPts} for wins, +{firstQueuedPts} "\
         f"for queueing first, +{secondQueuedPts} for queueing second\n"
-    leaderboardString += '```\n'
+    leaderboardString += '```diff\n'
+    
+    for displayData in leaderboard:
+        if int(displayData[3]) == playerID:
+            player = players[playerID]
+            leaderboardString += f"Name: {displayData[1]}\n"
+            leaderboardString += f"Elo: {displayData[0]}\n"
+            leaderboardString += f"LP: {player.ladderPoints}\n"
+            leaderboardString += f"Games: {player.games}\n"
+            leaderboardString += f"Wins: {player.wins}\n"
+            leaderboardString += f"Times First Queued: {player.firstQueued}\n"
+            leaderboardString += "\n"
+    
+    for displayData in leaderboard:
+        toAdd = ""
+        if int(displayData[3]) == int(playerID):
+            toAdd += "-"
+        toAdd += f"Elo: {displayData[0]} "
+        toAdd = toAdd.ljust(11)
+        leaderboardString += toAdd
+        leaderboardString += f"| LP: {displayData[2]}".ljust(11)
+        leaderboardString += f"| {displayData[1]}"
+        leaderboardString += "\n"
+    leaderboardString += '```'
+    return leaderboardString
+
+def getLeaderboard():
+    leaderboard = getLeaderboardData()
+    leaderboard = sorted(leaderboard, key=lambda x: x[2], reverse=True)
+    
+    leaderboardString = '```\n'
     for displayData in leaderboard:
         leaderboardString += f"Elo: {displayData[0]} ".ljust(11)
         leaderboardString += f"| LP: {displayData[2]}".ljust(11)
-        leaderboardString += f"| {displayData[1]}\n"
-        
+        leaderboardString += f"| {displayData[1]}"
+        leaderboardString += "\n"
     leaderboardString += '```'
     return leaderboardString
 
@@ -73,8 +113,6 @@ def getLeaderboardData():
     return leaderboard
 
 players = {}
-
-
 
 
 

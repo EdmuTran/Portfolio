@@ -211,6 +211,7 @@ async def tick():
             await setTournamentEligibleRoles()
             await queueTimeoutTick()
             await notifyPlayersOfOpenGame()
+            await updateLeaderboard()
     except KeyboardInterrupt:
         print('Loop Closed')
     except:
@@ -272,12 +273,25 @@ async def notifyPlayersOfOpenGame():
         for msg in msgs:
             if msg.author.id == botID:
                 if toSkip <= 0:
-                    await msg.edit(content='The match has been closed')
+                    await msg.edit(content='A player is waiting for a game. (The match is now closed)')
                 toSkip -= 1
     except:
         #print(traceback.format_exc())
         print('Player Notification of Open Game Exception')
+
+# =============================== Leaderboard Updates ===============================
+
+async def updateLeaderboard():
+    channel = getChannel('leaderboard')
+    msgs = await channel.history(limit=1).flatten()
     
+    if len(msgs) == 0:
+        await messageChannel('leaderboard', commandLeaderboard.getLeaderboard())
+    
+    for msg in msgs:
+        if msg.author.id == botID:
+            await msg.edit(content=commandLeaderboard.getLeaderboard())
+
 tick.start()
 client.run(TOKEN)
 
