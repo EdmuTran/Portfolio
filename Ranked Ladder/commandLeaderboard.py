@@ -46,7 +46,7 @@ def processMatch(match):
     players[match.winnerID].wins += 1
     
     season3End = 1610133548.6195579
-    if match.timeFinished < season3End:
+    if float(match.timeFinished) < float(season3End):
         players[match.firstQueued].ladderPoints += firstQueuedPts/2
         players[match.secondQueued].ladderPoints += secondQueuedPts/2
         players[match.winnerID].ladderPoints += winnerPts/2

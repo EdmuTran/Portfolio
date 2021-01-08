@@ -250,10 +250,11 @@ async def setTournamentEligibleRoles():
     for item in leaderboardData:
         playerID = item[3]
         
-        seasonWins = commandLeaderboard.players[playerID].wins
+        seasonWins = commandLeaderboard.players[playerID].seasonWins
         leaguePoints = item[2]
         if leaguePoints >= 2 and seasonWins > 1:
             qualifiedPlayers.append(playerID)
+            
     await setRoles(qualifiedPlayers, "Tournament Eligible")
 
 async def setRoles(playerIds, roleName):
