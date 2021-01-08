@@ -22,12 +22,14 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
+GUILDS = os.getenv('DISCORD_Guilds')
 
 intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents=intents)
 
 guild = None
+guilds = []
 
 clientIsReady = False
 
@@ -36,11 +38,19 @@ botID = 778772923984379904
 @client.event
 async def on_ready():
     global guild
+    global guilds
     global clientIsReady
     print(f'{client.user} has connected to Discord!')
     for g in client.guilds:
         if g.name == GUILD:
             guild = g
+            break
+    
+    guildNames = GUILDS.split(',')
+    print(guildNames)
+    for g in client.guilds:
+        if g.name in guildNames:
+            guilds.append(g)
             break
     
     print(
@@ -239,8 +249,10 @@ async def setTournamentEligibleRoles():
     qualifiedPlayers = []
     for item in leaderboardData:
         playerID = item[3]
+        
+        seasonWins = commandLeaderboard.players[playerID].wins
         leaguePoints = item[2]
-        if leaguePoints >= 2:
+        if leaguePoints >= 2 and seasonWins > 1:
             qualifiedPlayers.append(playerID)
     await setRoles(qualifiedPlayers, "Tournament Eligible")
 

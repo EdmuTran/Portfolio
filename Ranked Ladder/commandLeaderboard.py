@@ -1,5 +1,6 @@
 import databaseManager
 import eloCalculator
+import operator
 
 class playerData:
     
@@ -8,6 +9,7 @@ class playerData:
         self.ladderPoints = 0
         self.games = 0
         self.wins = 0
+        self.seasonWins = 0
         self.firstQueued = 0
 
 firstQueuedPts = .5
@@ -43,9 +45,16 @@ def processMatch(match):
     players[match.secondQueued].games += 1
     players[match.winnerID].wins += 1
     
-    players[match.firstQueued].ladderPoints += firstQueuedPts
-    players[match.secondQueued].ladderPoints += secondQueuedPts
-    players[match.winnerID].ladderPoints += winnerPts
+    season3End = 1610133548.6195579
+    if match.timeFinished < season3End:
+        players[match.firstQueued].ladderPoints += firstQueuedPts/2
+        players[match.secondQueued].ladderPoints += secondQueuedPts/2
+        players[match.winnerID].ladderPoints += winnerPts/2
+    else:
+        players[match.firstQueued].ladderPoints += firstQueuedPts
+        players[match.secondQueued].ladderPoints += secondQueuedPts
+        players[match.winnerID].ladderPoints += winnerPts
+        players[match.winnerID].seasonWins += 1
     
 def setElo(match):
     winner = players[match.winnerID]
@@ -93,7 +102,7 @@ def getLeaderboardAndPlayerData(orderByElo=False, playerID=0):
 
 def getLeaderboard():
     leaderboard = getLeaderboardData()
-    leaderboard = sorted(leaderboard, key=lambda x: x[2], reverse=True)
+    leaderboard = sorted(leaderboard, key=operator.itemgetter(2, 0), reverse=True)
     
     leaderboardString = '```\n'
     for displayData in leaderboard:
