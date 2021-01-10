@@ -11,6 +11,22 @@ class playerData:
         self.wins = 0
         self.seasonWins = 0
         self.firstQueued = 0
+        
+        self.ladderPointGain = 0
+        self.ladderPointGains = []
+    
+    def transferLadderPointGain(self, outdatedGameMultiplier=1):
+        self.ladderPointGains.append(self.ladderPointGain * outdatedGameMultiplier)
+        
+        self.ladderPointGains.sort(reverse=True)
+        self.ladderPoints = 0
+        multiplier = 1
+        
+        for pointGain in self.ladderPointGains:
+            self.ladderPoints += pointGain * multiplier
+            multiplier *= 0.75
+        
+        self.ladderPointGain = 0
 
 firstQueuedPts = .5
 secondQueuedPts = .25
@@ -45,16 +61,20 @@ def processMatch(match):
     players[match.secondQueued].games += 1
     players[match.winnerID].wins += 1
     
+    players[match.firstQueued].ladderPointGain += firstQueuedPts
+    players[match.secondQueued].ladderPointGain += secondQueuedPts
+    players[match.winnerID].ladderPointGain += winnerPts
+    
+    players[match.winnerID].ladderPointGain *= players[match.loserID].elo/500
+    players[match.winnerID].seasonWins += 1
+    
     season3End = 1610133548.6195579
     if float(match.timeFinished) < float(season3End):
-        players[match.firstQueued].ladderPoints += firstQueuedPts/2
-        players[match.secondQueued].ladderPoints += secondQueuedPts/2
-        players[match.winnerID].ladderPoints += winnerPts/2
+        players[match.winnerID].transferLadderPointGain(.5)
+        players[match.loserID].transferLadderPointGain(.5)
     else:
-        players[match.firstQueued].ladderPoints += firstQueuedPts
-        players[match.secondQueued].ladderPoints += secondQueuedPts
-        players[match.winnerID].ladderPoints += winnerPts
-        players[match.winnerID].seasonWins += 1
+        players[match.winnerID].transferLadderPointGain()
+        players[match.loserID].transferLadderPointGain()
     
 def setElo(match):
     winner = players[match.winnerID]
@@ -63,7 +83,7 @@ def setElo(match):
     winner.elo = winnerElo
     loser.elo = loserElo
 
-def getLeaderboardAndPlayerData(orderByElo=False, playerID=0):
+def getLeaderboardAndPlayerData(orderByElo=False, playerID=0, playerToShow=16):
     playerID = int(playerID)
     leaderboard = getLeaderboardData()
     
@@ -91,25 +111,29 @@ def getLeaderboardAndPlayerData(orderByElo=False, playerID=0):
         toAdd = ""
         if int(displayData[3]) == int(playerID):
             toAdd += "-"
-        toAdd += f"Elo: {displayData[0]} "
+        toAdd += f"Elo: {round(displayData[0])} "
         toAdd = toAdd.ljust(11)
         leaderboardString += toAdd
-        leaderboardString += f"| LP: {displayData[2]}".ljust(11)
+        leaderboardString += f"| LP: {round(displayData[2]*10,3)}".ljust(13)
         leaderboardString += f"| {displayData[1]}"
         leaderboardString += "\n"
     leaderboardString += '```'
     return leaderboardString
 
-def getLeaderboard():
+def getLeaderboard(playerToShow=16):
     leaderboard = getLeaderboardData()
     leaderboard = sorted(leaderboard, key=operator.itemgetter(2, 0), reverse=True)
     
     leaderboardString = '```\n'
     for displayData in leaderboard:
-        leaderboardString += f"Elo: {displayData[0]} ".ljust(11)
-        leaderboardString += f"| LP: {displayData[2]}".ljust(11)
+        leaderboardString += f"Elo: {round(displayData[0])} ".ljust(11)
+        leaderboardString += f"| LP: {round(displayData[2]*10,3)}".ljust(13)
         leaderboardString += f"| {displayData[1]}"
         leaderboardString += "\n"
+        
+        playerToShow -= 1
+        if playerToShow <= 0:
+            break
     leaderboardString += '```'
     return leaderboardString
 
@@ -118,12 +142,10 @@ def getLeaderboardData():
     leaderboard = []
     for playerID in players:
         player = databaseManager.Player(playerID)
-        leaderboard.append([round(players[playerID].elo),player.name,players[playerID].ladderPoints, playerID])
+        leaderboard.append([players[playerID].elo,player.name,players[playerID].ladderPoints, playerID])
     return leaderboard
 
 players = {}
-
-
 
 
 
