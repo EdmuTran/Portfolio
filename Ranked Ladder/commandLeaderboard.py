@@ -100,8 +100,8 @@ def getLeaderboardAndPlayerData(orderByElo=False, playerID=0, playerToShow=16):
         if int(displayData[3]) == playerID:
             player = players[playerID]
             leaderboardString += f"Name: {displayData[1]}\n"
-            leaderboardString += f"Elo: {displayData[0]}\n"
-            leaderboardString += f"LP: {player.ladderPoints}\n"
+            leaderboardString += f"Elo: {round(displayData[0])}\n"
+            leaderboardString += f"LP: {getLPDisplay(displayData[2])}\n"
             leaderboardString += f"Games: {player.games}\n"
             leaderboardString += f"Wins: {player.wins}\n"
             leaderboardString += f"Times First Queued: {player.firstQueued}\n"
@@ -114,9 +114,13 @@ def getLeaderboardAndPlayerData(orderByElo=False, playerID=0, playerToShow=16):
         toAdd += f"Elo: {round(displayData[0])} "
         toAdd = toAdd.ljust(11)
         leaderboardString += toAdd
-        leaderboardString += f"| LP: {round(displayData[2]*10,3)}".ljust(13)
+        leaderboardString += f"| LP: {getLPDisplay(displayData[2])}".ljust(12)
         leaderboardString += f"| {displayData[1]}"
         leaderboardString += "\n"
+        
+        playerToShow -= 1
+        if playerToShow <= 0:
+            break
     leaderboardString += '```'
     return leaderboardString
 
@@ -127,7 +131,7 @@ def getLeaderboard(playerToShow=16):
     leaderboardString = '```\n'
     for displayData in leaderboard:
         leaderboardString += f"Elo: {round(displayData[0])} ".ljust(11)
-        leaderboardString += f"| LP: {round(displayData[2]*10,3)}".ljust(13)
+        leaderboardString += f"| LP: {getLPDisplay(displayData[2])}".ljust(12)
         leaderboardString += f"| {displayData[1]}"
         leaderboardString += "\n"
         
@@ -136,6 +140,9 @@ def getLeaderboard(playerToShow=16):
             break
     leaderboardString += '```'
     return leaderboardString
+
+def getLPDisplay(lpValue):
+    return round(lpValue*10,1)
 
 def getLeaderboardData():
     calculateLeaderboard()
