@@ -28,11 +28,15 @@ class playerData:
         
         self.ladderPointGain = 0
 
+    def displayData(self):
+        print('===============================')
+        print(self.ladderPoints)
+
 firstQueuedPts = .5
 secondQueuedPts = .25
 winnerPts = 1
 
-def processScoreMessage(playerID, parameters, rowsToShow=15):
+def processScoreMessage(playerID, parameters, rowsToShow=16):
     
     eloOrdered = len(parameters) > 0 and parameters[0] == 'elo'
     response = getLeaderboardAndPlayerData(eloOrdered, playerID)
@@ -65,7 +69,9 @@ def processMatch(match):
     players[match.secondQueued].ladderPointGain += secondQueuedPts
     players[match.winnerID].ladderPointGain += winnerPts
     
-    players[match.winnerID].ladderPointGain *= players[match.loserID].elo/500
+    players[match.winnerID].ladderPointGain *= players[match.loserID].elo/50
+    players[match.loserID].ladderPointGain *= players[match.loserID].elo/50
+    
     players[match.winnerID].seasonWins += 1
     
     season3End = 1610133548.6195579
@@ -75,6 +81,14 @@ def processMatch(match):
     else:
         players[match.winnerID].transferLadderPointGain()
         players[match.loserID].transferLadderPointGain()
+    
+# =============================================================================
+#     # TODO Delete
+#     playerID = 688499825532076070
+#     if match.winnerID == playerID or match.loserID == playerID:
+#         print(players[playerID].ladderPointGains)
+#         players[playerID].displayData()
+# =============================================================================
     
 def setElo(match):
     winner = players[match.winnerID]
@@ -92,8 +106,8 @@ def getLeaderboardAndPlayerData(orderByElo=False, playerID=0, playerToShow=16):
     else:
         leaderboard = sorted(leaderboard, key=lambda x: x[2], reverse=True)
     
-    leaderboardString = f"LP = League Points\n+{winnerPts} for wins, +{firstQueuedPts} "\
-        f"for queueing first, +{secondQueuedPts} for queueing second\n"
+    leaderboardString = "LP = League Points. Your LP is influenced by wins mostly, "\
+        "your opponent's elo and also queueing first or just playing games.\n"
     leaderboardString += '```diff\n'
     
     for displayData in leaderboard:
@@ -142,7 +156,7 @@ def getLeaderboard(playerToShow=16):
     return leaderboardString
 
 def getLPDisplay(lpValue):
-    return round(lpValue*10,1)
+    return round(lpValue,1)
 
 def getLeaderboardData():
     calculateLeaderboard()
@@ -153,6 +167,15 @@ def getLeaderboardData():
     return leaderboard
 
 players = {}
+
+# =============================================================================
+# print(getLeaderboard(5))
+# =============================================================================
+
+
+
+
+
 
 
 

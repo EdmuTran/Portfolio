@@ -44,9 +44,9 @@ def reportGameResult(playerID, playerWon):
         p1 = commandLeaderboard.players[match.firstQueued]
         p2 = commandLeaderboard.players[match.secondQueued]
         
-        response = getStatChangeText(match.firstQueued, round(p1.elo - p1EloBefore), 
+        response = getStatChangeText(match.firstQueued, (p1.elo - p1EloBefore), 
                                      p1.ladderPoints - p1LadderPointsBefore)
-        response += getStatChangeText(match.secondQueued, round(p2.elo - p2EloBefore), 
+        response += getStatChangeText(match.secondQueued, (p2.elo - p2EloBefore), 
                                       p2.ladderPoints - p2LadderPointsBefore)
         response += "Game recorded. !queue to continue playing games"
         return response
@@ -55,9 +55,9 @@ def reportGameResult(playerID, playerWon):
     
 def getStatChangeText(playerId, eloChange, leadderPointChange):
     if eloChange >= 0:
-        response = f"<@{playerId}> Elo: +{eloChange}, "\
-            f"LP: +{leadderPointChange}\n"
+        response = f"<@{playerId}> Elo: +{round(eloChange)}, "\
+            f"LP: +{round(leadderPointChange,1)}\n"
     else:
-        response = f"<@{playerId}> Elo: {eloChange}, "\
-            f"LP: +{leadderPointChange}\n"
+        response = f"<@{playerId}> Elo: {round(eloChange)}, "\
+            f"LP: +{round(leadderPointChange)}\n"
     return response
