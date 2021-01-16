@@ -219,7 +219,7 @@ def getLastestCompletedMatches(playerID):
 def getFinishedMatches(ascending=False):
     sql = "SELECT * FROM LoggedGames "\
         "WHERE winnerID IS NOT NULL AND "\
-            "cancelled=0 ORDER BY timeFinished DESC"
+            "cancelled=0 ORDER BY timeFinished "
     if ascending:
         sql += "DESC"
     else:
