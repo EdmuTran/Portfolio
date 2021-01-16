@@ -216,10 +216,14 @@ def getLastestCompletedMatches(playerID):
         openMatches.append(Match(row))
     return openMatches
 
-def getFinishedMatches():
+def getFinishedMatches(ascending=False):
     sql = "SELECT * FROM LoggedGames "\
         "WHERE winnerID IS NOT NULL AND "\
-            "cancelled=0 ORDER BY timeFinished ASC"
+            "cancelled=0 ORDER BY timeFinished DESC"
+    if ascending:
+        sql += "DESC"
+    else:
+        sql += "ASC"
     matchDataRows = selectQuery(sql)
     finishedMatches = []
     for row in matchDataRows:

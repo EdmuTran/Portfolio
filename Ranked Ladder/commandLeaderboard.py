@@ -45,7 +45,7 @@ def processScoreMessage(playerID, parameters, rowsToShow=16):
 
 def calculateLeaderboard():
     global players
-    matches = databaseManager.getFinishedMatches()
+    matches = databaseManager.getFinishedMatches(ascending=True)
     if len(matches) != 0:
         players = {}
         for match in matches:
