@@ -43,11 +43,10 @@ def processScoreMessage(playerID, parameters, rowsToShow=16):
     
     return response
 
-previousNumberOfMatches = 0
 def calculateLeaderboard():
     global players
     matches = databaseManager.getFinishedMatches()
-    if previousNumberOfMatches != len(matches):
+    if len(matches) != 0:
         players = {}
         for match in matches:
             processMatch(match)
@@ -82,9 +81,9 @@ def processMatch(match):
         players[match.winnerID].transferLadderPointGain()
         players[match.loserID].transferLadderPointGain()
     
+    # TODO Delete
 # =============================================================================
-#     # TODO Delete
-#     playerID = 688499825532076070
+#     playerID = 157329269435924480
 #     if match.winnerID == playerID or match.loserID == playerID:
 #         print(players[playerID].ladderPointGains)
 #         players[playerID].displayData()

@@ -1,27 +1,25 @@
 Altdorf Outskirts
 Ash Plains
-Oakenhammer
-Praag
-Altdorf Outskirts
-Troll Country
-Estalian Tomb
-MP Alpine Ridge
-Golden Monolith
-Schwartzhaven
-Ironsand Deasert
-Sword of Torgald
-Wyvern Lake
-Glacial Lake
-Tower of Hoeth
-Summersong
-L'Anguille
-River Amaxon
-Northern Chaos Wastes
-Ruins of Enduil
-Shimmersward
-Central Chaos Wastes
-Mortis Wastes
-Pillar of Bone
 Castle Drakenhoff
-The Crack of Karkan
+Central Chaos Wastes
 Eschen
+Estalian Tomb
+Glacial Lake
+Golden Monolith
+Ironsand Deasert
+L'Anguille
+MP Alpine Ridge
+Mortis Wastes
+Northern Chaos Wastes
+Oakenhammer
+Pillar of Bone
+Praag
+River Amaxon
+Schwartzhaven
+Shimmersward
+Summersong
+Sword of Torgald
+The Crack of Karkan
+Tower of Hoeth
+Troll Country
+Wyvern Lake

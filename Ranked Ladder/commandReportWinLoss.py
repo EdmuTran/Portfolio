@@ -31,6 +31,9 @@ def reportGameResult(playerID, playerWon):
         
         print('blar===========')
         print(p1EloBefore)
+        print(p1LadderPointsBefore)
+        print(p2EloBefore)
+        print(p2LadderPointsBefore)
         
         if playerWon:
             match.finishGame(playerID)
@@ -40,9 +43,14 @@ def reportGameResult(playerID, playerWon):
             else:
                 match.finishGame(match.firstQueued)
         commandLeaderboard.calculateLeaderboard()
-                
+        
         p1 = commandLeaderboard.players[match.firstQueued]
         p2 = commandLeaderboard.players[match.secondQueued]
+        
+        print(p1.elo)
+        print(p1.ladderPoints)
+        print(p2.elo)
+        print(p2.ladderPoints)
         
         response = getStatChangeText(match.firstQueued, (p1.elo - p1EloBefore), 
                                      p1.ladderPoints - p1LadderPointsBefore)
@@ -59,5 +67,5 @@ def getStatChangeText(playerId, eloChange, leadderPointChange):
             f"LP: +{round(leadderPointChange,1)}\n"
     else:
         response = f"<@{playerId}> Elo: {round(eloChange)}, "\
-            f"LP: +{round(leadderPointChange)}\n"
+            f"LP: +{round(leadderPointChange,1)}\n"
     return response
