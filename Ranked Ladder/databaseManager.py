@@ -221,9 +221,9 @@ def getFinishedMatches(ascending=False):
         "WHERE winnerID IS NOT NULL AND "\
             "cancelled=0 ORDER BY timeFinished "
     if ascending:
-        sql += "DESC"
-    else:
         sql += "ASC"
+    else:
+        sql += "DESC"
     matchDataRows = selectQuery(sql)
     finishedMatches = []
     for row in matchDataRows:

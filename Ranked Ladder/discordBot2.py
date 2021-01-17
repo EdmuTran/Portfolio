@@ -79,21 +79,21 @@ async def on_message(msg):
                 response = commandHelp.processFindOpponentHelpMessage()
                 await replyInSameChat(parsedMsg, response)
                 
-            elif parsedMessageMatchesCommand('find-matches','queue',parsedMsg):
+            elif parsedMessageMatchesCommand('find-matches',['q','queue'],parsedMsg):
                 response, lobbyCreated = commandQueue.processQueueMessage(parsedMsg.playerID, parsedMsg.name, parsedMsg.parameters)
                 await replyInSameChat(parsedMsg, response)
                 if lobbyCreated:
                     await messageChannel('game-notifications', 'A player is waiting for a game.') 
                 
-            elif parsedMessageMatchesCommand('find-matches','exit',parsedMsg):
+            elif parsedMessageMatchesCommand('find-matches',['e','exit'],parsedMsg):
                 response = commandExit.processExitMessage(parsedMsg.playerID)
                 await replyInSameChat(parsedMsg, response)
                 
-            elif parsedMessageMatchesCommand('find-matches','reportwin',parsedMsg):
+            elif parsedMessageMatchesCommand('find-matches',['w','win','reportwin'],parsedMsg):
                 response = commandReportWinLoss.reportWin(parsedMsg.playerID)
                 await replyInSameChat(parsedMsg, response)
                 
-            elif parsedMessageMatchesCommand('find-matches','reportloss',parsedMsg):
+            elif parsedMessageMatchesCommand('find-matches',['l','loss','reportloss'],parsedMsg):
                 response = commandReportWinLoss.reportLoss(parsedMsg.playerID)
                 await replyInSameChat(parsedMsg, response)
                 
@@ -185,7 +185,17 @@ def isDirectMessage(msg):
     return isinstance(msg.channel, discord.channel.DMChannel)
 
 def parsedMessageMatchesCommand(channelName, commandName, parsedMsg):
-    return parsedMsg.channelName == channelName and parsedMsg.command == commandName
+    if type(commandName) == list:
+        commandMatches = parsedMsg.command in commandName
+    else:
+        commandMatches = parsedMsg.command == commandName
+    
+    if type(channelName) == list:
+        channelMatches = parsedMsg.channelName in channelName
+    else:
+        channelMatches = parsedMsg.channelName == channelName
+    
+    return commandMatches and channelMatches
 
 class ParsedMessage:
     def __init__(self,msg):
@@ -299,11 +309,11 @@ async def updateLeaderboard():
     msgs = await channel.history(limit=1).flatten()
     
     if len(msgs) == 0:
-        await messageChannel('leaderboard', commandLeaderboard.getLeaderboard())
+        await messageChannel('leaderboard', commandLeaderboard.getLeaderboard(playerToShow=50))
     
     for msg in msgs:
         if msg.author.id == botID:
-            await msg.edit(content=commandLeaderboard.getLeaderboard())
+            await msg.edit(content=commandLeaderboard.getLeaderboard(playerToShow=50))
 
 tick.start()
 client.run(TOKEN)

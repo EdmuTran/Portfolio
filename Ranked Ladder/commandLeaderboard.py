@@ -14,8 +14,11 @@ class playerData:
         
         self.ladderPointGain = 0
         self.ladderPointGains = []
+        
+        self.eloTracker = []
+        self.timeTracker = []
     
-    def transferLadderPointGain(self, outdatedGameMultiplier=1):
+    def transferLadderPointGain(self, time, outdatedGameMultiplier=1):
         self.ladderPointGains.append(self.ladderPointGain * outdatedGameMultiplier)
         
         self.ladderPointGains.sort(reverse=True)
@@ -27,6 +30,8 @@ class playerData:
             multiplier *= 0.75
         
         self.ladderPointGain = 0
+        self.eloTracker.append(self.elo)
+        self.timeTracker.append(time)
 
     def displayData(self):
         print('===============================')
@@ -75,11 +80,11 @@ def processMatch(match):
     
     season3End = 1610133548.6195579
     if float(match.timeFinished) < float(season3End):
-        players[match.winnerID].transferLadderPointGain(.5)
-        players[match.loserID].transferLadderPointGain(.5)
+        players[match.winnerID].transferLadderPointGain(match.timeFinished, .5)
+        players[match.loserID].transferLadderPointGain(match.timeFinished, .5)
     else:
-        players[match.winnerID].transferLadderPointGain()
-        players[match.loserID].transferLadderPointGain()
+        players[match.winnerID].transferLadderPointGain(match.timeFinished)
+        players[match.loserID].transferLadderPointGain(match.timeFinished)
     
     # TODO Delete
 # =============================================================================
@@ -141,7 +146,8 @@ def getLeaderboard(playerToShow=16):
     leaderboard = getLeaderboardData()
     leaderboard = sorted(leaderboard, key=operator.itemgetter(2, 0), reverse=True)
     
-    leaderboardString = '```\n'
+    leaderboardString = f'Top {playerToShow}:'
+    leaderboardString += '```\n'
     for displayData in leaderboard:
         leaderboardString += f"Elo: {round(displayData[0])} ".ljust(11)
         leaderboardString += f"| LP: {getLPDisplay(displayData[2])}".ljust(12)
@@ -167,9 +173,6 @@ def getLeaderboardData():
 
 players = {}
 
-# =============================================================================
-# print(getLeaderboard(5))
-# =============================================================================
 
 
 

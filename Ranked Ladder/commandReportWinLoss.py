@@ -29,12 +29,6 @@ def reportGameResult(playerID, playerWon):
         p2EloBefore = p2Old.elo
         p2LadderPointsBefore = p2Old.ladderPoints
         
-        print('blar===========')
-        print(p1EloBefore)
-        print(p1LadderPointsBefore)
-        print(p2EloBefore)
-        print(p2LadderPointsBefore)
-        
         if playerWon:
             match.finishGame(playerID)
         else:
@@ -46,11 +40,6 @@ def reportGameResult(playerID, playerWon):
         
         p1 = commandLeaderboard.players[match.firstQueued]
         p2 = commandLeaderboard.players[match.secondQueued]
-        
-        print(p1.elo)
-        print(p1.ladderPoints)
-        print(p2.elo)
-        print(p2.ladderPoints)
         
         response = getStatChangeText(match.firstQueued, (p1.elo - p1EloBefore), 
                                      p1.ladderPoints - p1LadderPointsBefore)
